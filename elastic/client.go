@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/juju/errors"
 )
@@ -30,6 +31,7 @@ type ClientConfig struct {
 	Addr     string
 	User     string
 	Password string
+	Timeout  time.Duration
 }
 
 // NewClient creates the Cient with configuration.
@@ -45,10 +47,15 @@ func NewClient(conf *ClientConfig) *Client {
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
-		c.c = &http.Client{Transport: tr}
+		c.c = &http.Client{
+			Transport: tr,
+			Timeout:   conf.Timeout,
+		}
 	} else {
 		c.Protocol = "http"
-		c.c = &http.Client{}
+		c.c = &http.Client{
+			Timeout: conf.Timeout,
+		}
 	}
 
 	return c
