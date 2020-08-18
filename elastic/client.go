@@ -228,14 +228,9 @@ func (c *Client) Do(method string, url string, body map[string]interface{}) (*Re
 	ret := new(Response)
 	ret.Code = resp.StatusCode
 
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Trace(err)
-	}
-
-	if len(data) > 0 {
-		err = json.Unmarshal(data, &ret.ResponseItem)
-	}
+	decoder := json.NewDecoder(resp.Body)
+	decoder.UseNumber()
+	err = decoder.Decode(&ret.ResponseItem)
 
 	return ret, errors.Trace(err)
 }
