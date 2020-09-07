@@ -61,6 +61,10 @@ func NewClient(conf *ClientConfig) *Client {
 	return c
 }
 
+type MGetResponse struct {
+	Docs []ResponseItem `json:"docs"`
+}
+
 // ResponseItem is the ES item in the response.
 type ResponseItem struct {
 	ID      string                 `json:"_id"`
