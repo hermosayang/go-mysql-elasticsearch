@@ -61,10 +61,6 @@ func NewClient(conf *ClientConfig) *Client {
 	return c
 }
 
-type MGetResponse struct {
-	Docs []ResponseItem `json:"docs"`
-}
-
 // ResponseItem is the ES item in the response.
 type ResponseItem struct {
 	ID      string                 `json:"_id"`
@@ -79,6 +75,11 @@ type ResponseItem struct {
 type Response struct {
 	Code int
 	ResponseItem
+}
+
+type MGetResponse struct {
+	Code int
+	Docs []ResponseItem `json:"docs"`
 }
 
 // See http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html
