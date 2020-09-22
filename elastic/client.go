@@ -358,7 +358,7 @@ func (c *Client) Get(index string, docType string, id string) (*Response, error)
 }
 
 // Update creates or updates the data
-func (c *Client) Update(index string, docType string, id string, data map[string]interface{}) error {
+func (c *Client) Update(index string, docType string, id string, data map[string]interface{}) (*ResponseItem, error) {
 	reqURL := fmt.Sprintf("%s://%s/%s/%s/%s", c.Protocol, c.Addr,
 		url.QueryEscape(index),
 		url.QueryEscape(docType),
@@ -366,14 +366,14 @@ func (c *Client) Update(index string, docType string, id string, data map[string
 
 	r, err := c.Do("PUT", reqURL, data)
 	if err != nil {
-		return errors.Trace(err)
+		return nil, errors.Trace(err)
 	}
 
 	if r.Code == http.StatusOK || r.Code == http.StatusCreated {
-		return nil
+		return &r.ResponseItem, nil
 	}
 
-	return errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
+	return nil, errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
 }
 
 // Exists checks whether id exists or not.
