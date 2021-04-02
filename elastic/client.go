@@ -91,7 +91,7 @@ type Hits struct {
 }
 type SearchResponse struct {
 	Code int
-	Hits map[string]interface{} `json:"hits"`
+	Hits Hits `json:"hits"`
 }
 
 // See http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html
