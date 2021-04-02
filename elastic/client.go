@@ -82,6 +82,18 @@ type MGetResponse struct {
 	Docs []ResponseItem `json:"docs"`
 }
 
+type SearchTotal struct {
+	Value int `json:"value"`
+}
+type Hits struct {
+	Total SearchTotal    `json:"total"`
+	Docs  []ResponseItem `json:"hits"`
+}
+type SearchResponse struct {
+	Code int
+	Hits map[string]interface{} `json:"hits"`
+}
+
 // See http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html
 const (
 	ActionCreate = "create"
