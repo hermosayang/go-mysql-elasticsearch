@@ -31,7 +31,9 @@ type ClientConfig struct {
 	Addr     string
 	User     string
 	Password string
-	Timeout  time.Duration
+
+	Timeout           time.Duration
+	ESHTTPConnections int
 }
 
 // NewClient creates the Cient with configuration.
@@ -45,7 +47,9 @@ func NewClient(conf *ClientConfig) *Client {
 	if conf.HTTPS {
 		c.Protocol = "https"
 		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+			MaxIdleConns:        conf.ESHTTPConnections,
+			MaxIdleConnsPerHost: conf.ESHTTPConnections,
 		}
 		c.c = &http.Client{
 			Transport: tr,
@@ -53,8 +57,17 @@ func NewClient(conf *ClientConfig) *Client {
 		}
 	} else {
 		c.Protocol = "http"
+		defaultRoundTripper := http.DefaultTransport
+		defaultTransportPointer, ok := defaultRoundTripper.(*http.Transport)
+		if !ok {
+			panic(fmt.Sprintf("defaultRoundTripper not an *http.Transport"))
+		}
+		defaultTransport := *defaultTransportPointer // dereference it to get a copy of the struct that the pointer points to
+		defaultTransport.MaxIdleConns = conf.ESHTTPConnections
+		defaultTransport.MaxIdleConnsPerHost = conf.ESHTTPConnections
 		c.c = &http.Client{
-			Timeout: conf.Timeout,
+			Transport: &defaultTransport,
+			Timeout:   conf.Timeout,
 		}
 	}
 
