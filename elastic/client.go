@@ -376,16 +376,16 @@ func (c *Client) DeleteIndex(index string) error {
 	return errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
 }
 
-// Get gets the item by id.
-func (c *Client) Get(index, docType, id, routing string) (*Response, error) {
-	reqURL := c.buildReqURL(index, docType, id, routing)
+// Get gets the item by id. params: index, docType, id, routing, parent
+func (c *Client) Get(params ...string) (*Response, error) {
+	reqURL := c.buildReqURL(params...)
 
 	return c.Do("GET", reqURL, nil)
 }
 
-// Update creates or updates the data
-func (c *Client) Update(index, docType, id, routing string, data map[string]interface{}) (*ResponseItem, error) {
-	reqURL := c.buildReqURL(index, docType, id, routing)
+// Update creates or updates the data, params: index, docType, id, routing, parent
+func (c *Client) Update(data map[string]interface{}, params ...string) (*ResponseItem, error) {
+	reqURL := c.buildReqURL(params...)
 
 	r, err := c.Do("PUT", reqURL, data)
 	if err != nil {
@@ -399,9 +399,9 @@ func (c *Client) Update(index, docType, id, routing string, data map[string]inte
 	return nil, errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
 }
 
-// Exists checks whether id exists or not.
-func (c *Client) Exists(index, docType, id, routing string) (bool, error) {
-	reqURL := c.buildReqURL(index, docType, id, routing)
+// Exists checks whether id exists or not. params: index, docType, id, routing, parent
+func (c *Client) Exists(params ...string) (bool, error) {
+	reqURL := c.buildReqURL(params...)
 
 	r, err := c.Do("HEAD", reqURL, nil)
 	if err != nil {
@@ -411,9 +411,9 @@ func (c *Client) Exists(index, docType, id, routing string) (bool, error) {
 	return r.Code == http.StatusOK, nil
 }
 
-// Delete deletes the item by id.
-func (c *Client) Delete(index, docType, id, routing string) error {
-	reqURL := c.buildReqURL(index, docType, id, routing)
+// Delete deletes the item by id. params: index, docType, id, routing, parent
+func (c *Client) Delete(params ...string) error {
+	reqURL := c.buildReqURL(params...)
 
 	r, err := c.Do("DELETE", reqURL, nil)
 	if err != nil {
@@ -427,13 +427,24 @@ func (c *Client) Delete(index, docType, id, routing string) error {
 	return errors.Errorf("Error: %s, code: %d", http.StatusText(r.Code), r.Code)
 }
 
-func (c *Client) buildReqURL(index, docType, id, routing string) string {
+// buildReqURL, params: index, docType, id, routing, parent
+func (c *Client) buildReqURL(params ...string) string {
+	var index, docType, id, routing, parent string
+	func(s []string, vars ...*string) {
+		for i, str := range s {
+			*vars[i] = str
+		}
+	}(params, &index, &docType, &id, &routing, &parent)
+
 	reqURL := fmt.Sprintf("%s://%s/%s/%s/%s", c.Protocol, c.Addr,
 		url.QueryEscape(index),
 		url.QueryEscape(docType),
 		url.QueryEscape(id))
 	if len(routing) > 0 {
 		reqURL = fmt.Sprintf("%s?routing=%s", reqURL, url.QueryEscape(routing))
+	}
+	if len(parent) > 0 {
+		reqURL = fmt.Sprintf("%s?parent=%s", reqURL, url.QueryEscape(parent))
 	}
 	return reqURL
 }

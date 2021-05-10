@@ -48,7 +48,7 @@ func (s *elasticTestSuite) TestSimple(c *C) {
 	//key1 := "name"
 	//key2 := "content"
 
-	_, err := s.c.Update(index, docType, "1", "", makeTestData("abc", "hello world"))
+	_, err := s.c.Update(makeTestData("abc", "hello world"), index, docType, "1")
 	c.Assert(err, IsNil)
 
 	exists, err := s.c.Exists(index, docType, "1", "")
