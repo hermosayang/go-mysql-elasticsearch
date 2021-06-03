@@ -444,7 +444,11 @@ func (c *Client) buildReqURL(params ...string) string {
 		reqURL = fmt.Sprintf("%s?routing=%s", reqURL, url.QueryEscape(routing))
 	}
 	if len(parent) > 0 {
-		reqURL = fmt.Sprintf("%s?parent=%s", reqURL, url.QueryEscape(parent))
+		if len(routing) > 0 {
+			reqURL = fmt.Sprintf("%s&parent=%s", reqURL, url.QueryEscape(parent))
+		} else {
+			reqURL = fmt.Sprintf("%s?parent=%s", reqURL, url.QueryEscape(parent))
+		}
 	}
 	return reqURL
 }
